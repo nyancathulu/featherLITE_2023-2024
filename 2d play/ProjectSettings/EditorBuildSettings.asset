@@ -6,7 +6,7 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SnapScene.unity
+    path: Assets/Levels/Demo/Scenes/SnapScene.unity
     guid: 1557b25cd2f4e7742b80c1ff6a463964
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 2b9d199019bda404ead0f97d3adcc31b, type: 2}

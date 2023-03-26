@@ -2,18 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Room : MonoBehaviour
+public class PlayerParent : MonoBehaviour
 {
-    public GameObject VirtualCam;
-    public int cameraOrderNumber;
-
+    public GameObject player;
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        VirtualCam.SetActive(true);
+        player.transform.parent = collision.transform;
     }
     private void OnTriggerExit2D(Collider2D collision)
     {
-        VirtualCam.SetActive(false);
-        //Debug.Log(collision.gameObject);
+        player.transform.parent = collision.transform;
     }
 }

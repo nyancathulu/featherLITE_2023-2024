@@ -57,9 +57,9 @@ public class PlayerMovement : MonoBehaviour
     public float wallJumpingDuration = 0.4f;
     public Vector2 wallJumpingPower = new Vector2(8f, 16f);
     [Range(0.1f, 2)]
-    public float icesliderange;
+    public float Conveyersliderange;
     [Range(0, 1)]
-    public float icemovebackfactor;
+    public float Conveyermovebackfactor;
     public float respawnDelaySeconds;
     [Space(5)]
     [Header("References")]
@@ -67,8 +67,10 @@ public class PlayerMovement : MonoBehaviour
     public LayerMask ground;
     public GameObject wallChecker;
     public LayerMask wall;
-    public GameObject iceChecker;
-    public LayerMask ice;
+    public GameObject LAYERChecker;
+    public LayerMask Conveyer;
+    public LayerMask ConveyerRight;
+    public LayerMask ConveyerLeft;
     [Space(10)]
     [Header("Inputs")]
     [Space]
@@ -103,16 +105,25 @@ public class PlayerMovement : MonoBehaviour
     private float wallJumpingDirection;
     private float wallJumpingCounter;
     private bool sideinput;
-    bool icestart;
-    float icedirection;
+    bool Conveyerstart;
+    float Conveyerdirection;
     bool isDying;
     private bool isOnGround()
     {
         return groundChecker.GetComponent<groundChecker>().isOnGround;
     }
-    private bool IsIced()
+    private bool IsConveyered()
     {
-        return Physics2D.OverlapCircle(iceChecker.transform.position, 0.2f, ice);
+        if (Physics2D.OverlapCircle(LAYERChecker.transform.position, 0.2f, ConveyerRight))
+        {
+            Conveyerdirection = 1;
+        }
+        if (Physics2D.OverlapCircle(LAYERChecker.transform.position, 0.2f, ConveyerLeft))
+        {
+            Conveyerdirection = -1;
+        }
+        return Physics2D.OverlapCircle(LAYERChecker.transform.position, 0.2f, Conveyer);
+       
     }
     private bool IsWalled()
     {
@@ -234,8 +245,8 @@ public class PlayerMovement : MonoBehaviour
         WallJump();
         //logger.Log(rb.velocity.y);
 
-        //ice
-        IceSlide();
+        //Conveyer
+        ConveyerMove();
 
         //misc
         if (!isWallJumping)
@@ -358,7 +369,7 @@ public class PlayerMovement : MonoBehaviour
     }
     private void Flip()
     {
-        if (!icestart)
+        if (!Conveyerstart)
         {
             if (isFacingRight && movementinput.x < 0f || !isFacingRight && movementinput.x > 0f)
             {
@@ -368,7 +379,7 @@ public class PlayerMovement : MonoBehaviour
                 transform.localScale = localScale;
             }
         }
-        if (icestart)
+        if (Conveyerstart)
         {
             if (isFacingRight && movement.action.ReadValue<Vector2>().x < 0f || !isFacingRight && movement.action.ReadValue<Vector2>().x > 0f)
             {
@@ -397,10 +408,10 @@ public class PlayerMovement : MonoBehaviour
     {
         if (isOnGround())
         {
-            if (!IsIced())
+            if (!IsConveyered())
             {
                 sideinput = true;
-                icestart = false;
+                Conveyerstart = false;
             }
             isWallJumping = false;
             CancelInvoke(nameof(StopWallJumping));
@@ -446,49 +457,49 @@ public class PlayerMovement : MonoBehaviour
     }
 
 
-    private void IceSlide()
+    private void ConveyerMove()
     {
-        //logger.Log(icestart);
-        if (IsIced())
+        //logger.Log(Conveyerstart);
+        if (IsConveyered())
         {
-            if (!icestart)
+            if (!Conveyerstart)
             {
                 sideinput = false;
-                if (rb.velocity.x > -0.01f)
+                /*if (rb.velocity.x > -0.01f)
                 {
-                    icedirection = 1;
+                    Conveyerdirection = 1;
                 }
                 if (rb.velocity.x < -0.01f)
                 {
-                    icedirection = -1;
-                }
-                icestart = true;
+                    Conveyerdirection = -1;
+                }*/
+                Conveyerstart = true;
             }
            
         }
-        if (icestart)
+        if (Conveyerstart)
         {
-            if (icedirection == 1)
+            if (Conveyerdirection == 1)
             {
                 if (movement.action.ReadValue<Vector2>().x >= 0)
                 {
-                    movementinput = new Vector2(icesliderange, movement.action.ReadValue<Vector2>().y);
+                    movementinput = new Vector2(Conveyersliderange, movement.action.ReadValue<Vector2>().y);
                 }
                 if (movement.action.ReadValue<Vector2>().x < 0)
                 {
-                    movementinput = new Vector2(icesliderange * icemovebackfactor, movement.action.ReadValue<Vector2>().y);
+                    movementinput = new Vector2(Conveyersliderange * Conveyermovebackfactor, movement.action.ReadValue<Vector2>().y);
                 }
 
             }
-            if (icedirection == -1)
+            if (Conveyerdirection == -1)
             {
                 if (movement.action.ReadValue<Vector2>().x <= 0)
                 {
-                    movementinput = new Vector2(-icesliderange, movement.action.ReadValue<Vector2>().y);
+                    movementinput = new Vector2(-Conveyersliderange, movement.action.ReadValue<Vector2>().y);
                 }
                 if (movement.action.ReadValue<Vector2>().x > 0)
                 {
-                    movementinput = new Vector2(-icesliderange * icemovebackfactor, movement.action.ReadValue<Vector2>().y);
+                    movementinput = new Vector2(-Conveyersliderange * Conveyermovebackfactor, movement.action.ReadValue<Vector2>().y);
                 }
             }
         }
@@ -538,16 +549,18 @@ public class PlayerMovement : MonoBehaviour
     public IEnumerator deathcoroutine(Vector2 p)
     {
         isDying = true;
+        transform.parent = null;
         float timer = respawnDelaySeconds;
         
         while(timer > 0)
         {
             rb.velocity = Vector2.zero;
+            GetComponent<Rigidbody2D>().Sleep();
             timer -= Time.deltaTime;
             
             yield return 0;
         }
-        
+        GetComponent<Rigidbody2D>().WakeUp();
         rb.position = p;
         isDying = false;
         yield break;
