@@ -18779,6 +18779,8 @@ MonoBehaviour:
   Conveyersliderange: 0.8
   Conveyermovebackfactor: 0.5
   respawnDelaySeconds: 0.5
+  iceAccelRate: 0.204
+  iceDecelRate: 0.068
   groundChecker: {fileID: 835047720}
   ground:
     serializedVersion: 2
@@ -18797,6 +18799,9 @@ MonoBehaviour:
   ConveyerLeft:
     serializedVersion: 2
     m_Bits: 32768
+  ice:
+    serializedVersion: 2
+    m_Bits: 256
   fire: {fileID: 5471349734623308742, guid: 392a51380ee56b84b9d812db98d98bb9, type: 3}
   look: {fileID: 2701018110069026452, guid: 392a51380ee56b84b9d812db98d98bb9, type: 3}
   movement: {fileID: 8110607230342671779, guid: 392a51380ee56b84b9d812db98d98bb9, type: 3}

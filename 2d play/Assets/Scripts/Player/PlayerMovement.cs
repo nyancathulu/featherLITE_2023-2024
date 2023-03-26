@@ -61,6 +61,10 @@ public class PlayerMovement : MonoBehaviour
     [Range(0, 1)]
     public float Conveyermovebackfactor;
     public float respawnDelaySeconds;
+    [Range(0, 1)]
+    public float iceAccelRate;
+    [Range(0, 1)]
+    public float iceDecelRate;
     [Space(5)]
     [Header("References")]
     public GameObject groundChecker;
@@ -71,6 +75,7 @@ public class PlayerMovement : MonoBehaviour
     public LayerMask Conveyer;
     public LayerMask ConveyerRight;
     public LayerMask ConveyerLeft;
+    public LayerMask ice;
     [Space(10)]
     [Header("Inputs")]
     [Space]
@@ -129,6 +134,10 @@ public class PlayerMovement : MonoBehaviour
     {
         return Physics2D.OverlapCircle(wallChecker.transform.position, 0.2f, wall); // maybe replace w/ adjustable var
     }
+    private bool IsIced()
+    {
+        return Physics2D.OverlapCircle(LAYERChecker.transform.position, 0.2f, ice);
+    }
     void OnEnable()
     {
         RespawnManager.OnDeath += Die;
@@ -146,22 +155,7 @@ public class PlayerMovement : MonoBehaviour
     {
         //checks
         //isOnGround = groundChecker.GetComponent<groundChecker>().isOnGround;
-        if (!isOnGround())
-        {
-            finalaccelrate = AirBrakeaccelRate;
-        }
-        if (isOnGround())
-        {
-            //wallJumpTimer = -1f;
-            if (movementinput.x != 0)
-            {
-                finalaccelrate = accelRate;
-            }
-            if (movementinput.x == 0)
-            {
-                finalaccelrate = decelRate;
-            }
-        }
+        
         if (!isJumping)
         {
             if (isOnGround())
@@ -253,6 +247,11 @@ public class PlayerMovement : MonoBehaviour
         {
             Flip();
         }
+
+        //Iced
+        //logger.Log(IsIced());
+        IceMove();
+        
     }
     void FixedUpdate()
     {
@@ -505,7 +504,39 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-
+    private void IceMove()
+    {
+        if (!IsIced())
+        {
+            if (!isOnGround())
+            {
+                finalaccelrate = AirBrakeaccelRate;
+            }
+            if (isOnGround())
+            {
+                //wallJumpTimer = -1f;
+                if (movementinput.x != 0)
+                {
+                    finalaccelrate = accelRate;
+                }
+                if (movementinput.x == 0)
+                {
+                    finalaccelrate = decelRate;
+                }
+            }
+        }
+        if (IsIced())
+        {
+            if (movementinput.x != 0)
+            {
+                finalaccelrate = iceAccelRate;
+            }
+            if (movementinput.x == 0)
+            {
+                finalaccelrate = iceDecelRate;
+            }
+        }
+    }
 
 
 
