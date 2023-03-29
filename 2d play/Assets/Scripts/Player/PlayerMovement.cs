@@ -65,6 +65,8 @@ public class PlayerMovement : MonoBehaviour
     public float iceAccelRate;
     [Range(0, 1)]
     public float iceDecelRate;
+    [Range(0, 1)]
+    public float iceAirAccelRate;
     [Space(5)]
     [Header("References")]
     public GameObject groundChecker;
@@ -113,6 +115,7 @@ public class PlayerMovement : MonoBehaviour
     bool Conveyerstart;
     float Conveyerdirection;
     bool isDying;
+    bool startIce;
     private bool isOnGround()
     {
         return groundChecker.GetComponent<groundChecker>().isOnGround;
@@ -407,11 +410,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (isOnGround())
         {
-            if (!IsConveyered())
-            {
-                sideinput = true;
-                Conveyerstart = false;
-            }
+            //if (!IsIced()) startIce = false;
             isWallJumping = false;
             CancelInvoke(nameof(StopWallJumping));
         }
@@ -476,6 +475,14 @@ public class PlayerMovement : MonoBehaviour
             }
            
         }
+        if (!IsConveyered())
+        {
+            if (isOnGround() | IsWalled())
+            {
+                sideinput = true;
+                Conveyerstart = false;
+            }
+        }
         if (Conveyerstart)
         {
             if (Conveyerdirection == 1)
@@ -506,7 +513,37 @@ public class PlayerMovement : MonoBehaviour
 
     private void IceMove()
     {
+        if (IsIced())
+        {
+            startIce = true;
+        }
         if (!IsIced())
+        {
+            if (isOnGround() | IsWalled()) startIce = false;
+        }
+        
+
+
+
+        if (startIce)
+        {
+            if (isOnGround())
+            {
+                if (movementinput.x != 0)
+                {
+                    finalaccelrate = iceAccelRate;
+                }
+                if (movementinput.x == 0)
+                {
+                    finalaccelrate = iceDecelRate;
+                }
+            }
+            if (!isOnGround())
+            {
+                finalaccelrate = iceAirAccelRate;
+            }
+        }
+        if (!startIce)
         {
             if (!isOnGround())
             {
@@ -523,17 +560,6 @@ public class PlayerMovement : MonoBehaviour
                 {
                     finalaccelrate = decelRate;
                 }
-            }
-        }
-        if (IsIced())
-        {
-            if (movementinput.x != 0)
-            {
-                finalaccelrate = iceAccelRate;
-            }
-            if (movementinput.x == 0)
-            {
-                finalaccelrate = iceDecelRate;
             }
         }
     }

@@ -41,34 +41,34 @@ public class MovingPlatform : MonoBehaviour
         {
             StartMove(); //just for testing
         }
-       /* if (moveDir == 1)
-        {
-            if (slider < 1.1f)
-            {
-                slider += timeScale * Time.deltaTime;
-            }
-            else moveDir = -1;
-        }
-        if (moveDir == -1)
-        {
-            if (slider > -0.1f)
-            {
-                slider -= timeScale * Time.deltaTime;
-            }
-            else moveDir = 1;
-        }*/
+        /* if (moveDir == 1)
+         {
+             if (slider < 1.1f)
+             {
+                 slider += timeScale * Time.deltaTime;
+             }
+             else moveDir = -1;
+         }
+         if (moveDir == -1)
+         {
+             if (slider > -0.1f)
+             {
+                 slider -= timeScale * Time.deltaTime;
+             }
+             else moveDir = 1;
+         }*/
         //Debug.Log(slider);
         // transform.position = Vector2.Lerp(WayPoints[0].position, WayPoints[1].position, movingCurve.Evaluate(Mathf.Clamp01(slider)));
-       // Debug.Log(rb.velocity);
-       
+        // Debug.Log(rb.velocity);
+         progress = (movingCurve.Evaluate(slider) * (WayPoints.Count - 1)); ///slider * (WayPoints.Count-1);
+        WaypointNumber = Mathf.FloorToInt(Mathf.Clamp(progress, 0, WayPoints.Count - 1.001f));
+        transform.position = Vector2.Lerp(WayPoints[WaypointNumber].position, WayPoints[WaypointNumber + 1].position, (Mathf.Clamp(progress, 0, WayPoints.Count - 1) - WaypointNumber));
     }
     void FixedUpdate()
     {
-       // Debug.Log(rb.velocity);
+        // Debug.Log(rb.velocity);
         //fullDistance = Vector2.Distance(WayPoints[WaypointNumber].position, WayPoints[WaypointNumber + 1].position);
-        progress = (movingCurve.Evaluate(slider) * (WayPoints.Count - 1)); ///slider * (WayPoints.Count-1);
-        WaypointNumber = Mathf.FloorToInt(Mathf.Clamp(progress, 0, WayPoints.Count - 1.001f));
-       transform.position = Vector2.Lerp(WayPoints[WaypointNumber].position, WayPoints[WaypointNumber + 1].position, (Mathf.Clamp(progress, 0, WayPoints.Count - 1) - WaypointNumber));
+      
     }
     /*private void OnTriggerEnter2D(Collider2D collision)
     {
