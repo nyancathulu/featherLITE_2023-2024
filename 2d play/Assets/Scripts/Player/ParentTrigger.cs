@@ -11,6 +11,7 @@ public class ParentTrigger : MonoBehaviour
     public float radius;
     public static bool isOnPlatform;
     public LayerMask playermask;
+    bool parented;
     private void Start()
     {
         isOnPlatform = false;
@@ -19,6 +20,7 @@ public class ParentTrigger : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     { 
         isOnPlatform = true;
+        parented = true;
        // Debug.Log("in");
         player.transform.SetParent(platform.gameObject.transform);
      /*   playerUI.transform.SetParent(null);
@@ -48,12 +50,13 @@ public class ParentTrigger : MonoBehaviour
         if ((!isOnPlatform) && (player.transform.parent == platform.gameObject.transform))
         {
             Debug.Log("ahahahahahahahaahah");
-            player.GetComponent<Rigidbody2D>().interpolation = RigidbodyInterpolation2D.Interpolate;
+            parented = false;
             player.transform.SetParent(null);
            /* playerUI.GetComponent<PlayerGUImovingplatformBehavior>().smoothfollow = false;
             playerUI.transform.SetParent(player.transform);*/
             playerUI.transform.localPosition = Vector2.zero;
         }
+        if (!isOnPlatform) player.GetComponent<Rigidbody2D>().interpolation = RigidbodyInterpolation2D.Interpolate;
         yield break;
     }
 }

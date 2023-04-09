@@ -67,6 +67,8 @@ public class PlayerMovement : MonoBehaviour
     public float iceDecelRate;
     [Range(0, 1)]
     public float iceAirAccelRate;
+    public float windedGravity;
+    public float maxWindedVelocity;
     [Space(5)]
     [Header("References")]
     public GameObject groundChecker;
@@ -78,6 +80,8 @@ public class PlayerMovement : MonoBehaviour
     public LayerMask ConveyerRight;
     public LayerMask ConveyerLeft;
     public LayerMask ice;
+    public LayerMask wind;
+    public LayerMask windLevel;
     [Space(10)]
     [Header("Inputs")]
     [Space]
@@ -116,9 +120,15 @@ public class PlayerMovement : MonoBehaviour
     float Conveyerdirection;
     bool isDying;
     bool startIce;
+    bool startWind;
+    bool runningWindCoroutine;
+    bool startedIceCoroutine;
+    //chaching
+    groundChecker cachedGroundCheck;
+
     private bool isOnGround()
     {
-        return groundChecker.GetComponent<groundChecker>().isOnGround;
+        return cachedGroundCheck.isOnGround;
     }
     private bool IsConveyered()
     {
@@ -139,7 +149,11 @@ public class PlayerMovement : MonoBehaviour
     }
     private bool IsIced()
     {
-        return Physics2D.OverlapCircle(LAYERChecker.transform.position, 0.2f, ice);
+        return Physics2D.OverlapCircle(LAYERChecker.transform.position, 1f, ice);
+    }
+    private bool IsWinded()
+    {
+        return Physics2D.OverlapCircle(LAYERChecker.transform.position, 0.2f, wind);
     }
     void OnEnable()
     {
@@ -153,6 +167,7 @@ public class PlayerMovement : MonoBehaviour
     {
         sideinput = true;
         OGscale = gameObject.transform.localScale.x;
+        cachedGroundCheck = groundChecker.GetComponent<groundChecker>();
     }
     void Update()
     {
@@ -254,7 +269,9 @@ public class PlayerMovement : MonoBehaviour
         //Iced
         //logger.Log(IsIced());
         IceMove();
-        
+
+        //Wind
+        CheckWind();
     }
     void FixedUpdate()
     {
@@ -297,8 +314,27 @@ public class PlayerMovement : MonoBehaviour
 
 
         //gravity
-        if (!isDying) rb.AddForce(Vector3.down * finalgravity, ForceMode2D.Impulse);
-        rb.velocity = Vector2.ClampMagnitude(rb.velocity, terminalvelocity);
+        if (!isDying)
+        {
+            if (startWind) rb.AddForce(Vector3.down * windedGravity, ForceMode2D.Impulse);
+            else rb.AddForce(Vector3.down * finalgravity, ForceMode2D.Impulse);
+           /* if (IsWinded())
+            {
+                rb.velocity = new Vector2(rb.velocity.x, Mathf.Clamp(rb.velocity.y, -windGravityLimit, 1000));
+                if (Physics2D.OverlapCircle(LAYERChecker.transform.position, 0.2f, windLevel))
+                {
+                    rb.AddForce(Vector3.up * windUpForce, ForceMode2D.Force);
+                    Debug.Log("memes");
+                }
+                    
+                //else rb.AddForce(Vector3.down * finalgravity, ForceMode2D.Impulse);
+                
+            }*/
+
+        }
+
+        if (startWind) rb.velocity = new Vector2(rb.velocity.x, Mathf.Clamp(rb.velocity.y, -maxWindedVelocity, 100000));
+        else rb.velocity = Vector2.ClampMagnitude(rb.velocity, terminalvelocity); 
     }
     public void StartJumpSequence()
     {
@@ -519,7 +555,9 @@ public class PlayerMovement : MonoBehaviour
         }
         if (!IsIced())
         {
-            if (isOnGround() | IsWalled()) startIce = false;
+            // if (isOnGround() | IsWalled()) startIce = false;
+
+            if (!startedIceCoroutine) StartCoroutine(IceEnd(0.4f));
         }
         
 
@@ -563,9 +601,56 @@ public class PlayerMovement : MonoBehaviour
             }
         }
     }
+    IEnumerator IceEnd(float t)
+    {
+        float timer = t;
+        while (timer > 0)
+        {
+            if (IsIced()) yield break;
+            if (isOnGround() | IsWalled() | rb.velocity.y < -15)
+            {
+                startIce = false;
+                yield break;
+            }
+            timer -= Time.deltaTime;
+            yield return 0;
+        }
+        startIce = false;
+    }
 
 
 
+
+    void CheckWind()
+    {
+       // logger.Log(startWind);
+        if (IsWinded())
+        {
+            startWind = true;
+        }
+        if (startWind == true)
+        {
+            if (isOnGround() | IsWalled())
+            {
+                if (!runningWindCoroutine) StartCoroutine(EndWindCoroutine(1.3f));
+            }
+        }
+    }
+
+    IEnumerator EndWindCoroutine(float t)
+    {
+        runningWindCoroutine = true;
+        float timer = t;
+        while (timer > 0)
+        {
+            timer -= Time.deltaTime;
+            yield return 0;
+        }
+        runningWindCoroutine = false;
+        if (isOnGround() | IsWalled()) startWind = false;
+    }
+
+    
 
 
 
@@ -619,6 +704,7 @@ public class PlayerMovement : MonoBehaviour
         }
         GetComponent<Rigidbody2D>().WakeUp();
         rb.position = p;
+        startWind = false;
         isDying = false;
         yield break;
     }

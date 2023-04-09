@@ -60,9 +60,10 @@ public class MovingPlatform : MonoBehaviour
         //Debug.Log(slider);
         // transform.position = Vector2.Lerp(WayPoints[0].position, WayPoints[1].position, movingCurve.Evaluate(Mathf.Clamp01(slider)));
         // Debug.Log(rb.velocity);
-         progress = (movingCurve.Evaluate(slider) * (WayPoints.Count - 1)); ///slider * (WayPoints.Count-1);
+        progress = (movingCurve.Evaluate(slider) * (WayPoints.Count - 1)); ///slider * (WayPoints.Count-1);
         WaypointNumber = Mathf.FloorToInt(Mathf.Clamp(progress, 0, WayPoints.Count - 1.001f));
         transform.position = Vector2.Lerp(WayPoints[WaypointNumber].position, WayPoints[WaypointNumber + 1].position, (Mathf.Clamp(progress, 0, WayPoints.Count - 1) - WaypointNumber));
+
     }
     void FixedUpdate()
     {

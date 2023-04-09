@@ -21,9 +21,9 @@ TagManager:
   - PLAYER
   - ConveyerForward
   - ConveyerBackward
-  - 
-  - 
-  - 
+  - Wind
+  - WindLevel
+  - groundCheck
   - 
   - 
   - 

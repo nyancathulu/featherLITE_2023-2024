@@ -13,6 +13,7 @@ public class MovingSaw : MonoBehaviour
     float progress;
     int WaypointNumber;
     float fullDistance;
+    public bool looped;
     // Start is called before the first frame update
     void Start()
     {
@@ -21,28 +22,45 @@ public class MovingSaw : MonoBehaviour
     }
     void Update()
     {
-        if (moveDir == 1)
+        if (!looped)
         {
-            if (slider < 1.1f)
+            if (moveDir == 1)
             {
-                slider += timeScale * Time.deltaTime;
+                if (slider < 1.1f)
+                {
+                    slider += timeScale * Time.deltaTime;
+                }
+                else moveDir = -1;
             }
-            else moveDir = -1;
+            if (moveDir == -1)
+            {
+                if (slider > -0.1f)
+                {
+                    slider -= timeScale * Time.deltaTime;
+                }
+                else moveDir = 1;
+            }
+           
         }
-        if (moveDir == -1)
+        if (looped)
         {
-            if (slider > -0.1f)
+            if (moveDir == 1)
             {
-                slider -= timeScale * Time.deltaTime;
+                if (slider < 1f)
+                {
+                    slider += timeScale * Time.deltaTime;
+                }
+                else slider = 0;
             }
-            else moveDir = 1;
+         
         }
         //Debug.Log(slider);
         // transform.position = Vector2.Lerp(WayPoints[0].position, WayPoints[1].position, movingCurve.Evaluate(Mathf.Clamp01(slider)));
         //Debug.Log(WayPoints.Count);
         progress = (movingCurve.Evaluate(slider) * (WayPoints.Count - 1)); ///slider * (WayPoints.Count-1);
-        WaypointNumber = Mathf.FloorToInt(Mathf.Clamp(progress, 0, WayPoints.Count-1.001f));
+        WaypointNumber = Mathf.FloorToInt(Mathf.Clamp(progress, 0, WayPoints.Count - 1.001f));
         //fullDistance = Vector2.Distance(WayPoints[WaypointNumber].position, WayPoints[WaypointNumber + 1].position);
-        gameObject.transform.position = Vector2.Lerp(WayPoints[WaypointNumber].position, WayPoints[WaypointNumber + 1].position, (Mathf.Clamp(progress, 0, WayPoints.Count-1) - WaypointNumber));
+        gameObject.transform.position = Vector2.Lerp(WayPoints[WaypointNumber].position, WayPoints[WaypointNumber + 1].position, (Mathf.Clamp(progress, 0, WayPoints.Count - 1) - WaypointNumber));
+
     }
 }
