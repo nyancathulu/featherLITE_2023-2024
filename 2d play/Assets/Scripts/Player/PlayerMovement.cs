@@ -12,10 +12,11 @@ public class PlayerMovement : MonoBehaviour
     [Header("Factors")]
   //  [SerializeField]
     public float topSpeed;
+    public float IcetopSpeed;
     // [SerializeField]
-    [Range(0.1f,1)]
+    //[Range(0.1f,1)]
     public float accelRate;
-    [Range(0.1f, 1)]
+    //[Range(0.1f, 1)]
     public float decelRate;
     public float targetvelocity;
     public float jumpspeed;
@@ -23,9 +24,9 @@ public class PlayerMovement : MonoBehaviour
     public float gravity;
     [Range(1,30)]
     public float wallSlidingSpeed;
-    [Range(1, 2)]
+   // [Range(1, 2)]
     public float gravitydownscale;
-    [Range(1,10)]
+   // [Range(1,10)]
     public float cutoffgravitydownscale;
     [Range(0.1f, 1f)]
     public float transitionpoint;
@@ -36,7 +37,7 @@ public class PlayerMovement : MonoBehaviour
     public float SquashAndStretchFACTOR;
     [Range(0, 2)]
     public float CoyoteTimeSeconds;
-    [Range(0.1f,1)]
+    //[Range(0.1f,1)]
     public float AirBrakeaccelRate;
     [Range(0,100)]
     public float terminalvelocity;
@@ -61,11 +62,11 @@ public class PlayerMovement : MonoBehaviour
     [Range(0, 1)]
     public float Conveyermovebackfactor;
     public float respawnDelaySeconds;
-    [Range(0, 1)]
+   // [Range(0, 1)]
     public float iceAccelRate;
-    [Range(0, 1)]
+    //[Range(0, 1)]
     public float iceDecelRate;
-    [Range(0, 1)]
+   // [Range(0, 1)]
     public float iceAirAccelRate;
     public float windedGravity;
     public float maxWindedVelocity;
@@ -123,6 +124,7 @@ public class PlayerMovement : MonoBehaviour
     bool startWind;
     bool runningWindCoroutine;
     bool startedIceCoroutine;
+    float internalTopSpeed;
     //chaching
     groundChecker cachedGroundCheck;
 
@@ -269,7 +271,14 @@ public class PlayerMovement : MonoBehaviour
         //Iced
         //logger.Log(IsIced());
         IceMove();
-
+        if (startIce)
+        {
+            internalTopSpeed = IcetopSpeed;
+        }
+        if (!startIce)
+        {
+            internalTopSpeed = topSpeed;
+        }
         //Wind
         CheckWind();
     }
@@ -277,9 +286,9 @@ public class PlayerMovement : MonoBehaviour
     {
 
         //movement
-        targetvelocity = (movementinput.x * topSpeed) - (rb.velocity.x);
+        targetvelocity = (movementinput.x * internalTopSpeed) - (rb.velocity.x);
         //logger.Log(accelRate * targetvelocity * Vector2.right);
-        if (!isDying) rb.AddForce(finalaccelrate * targetvelocity * Vector2.right, ForceMode2D.Impulse); //if (!isWallJumping) 
+        if (!isDying) rb.AddForce(finalaccelrate * targetvelocity * Vector2.right, ForceMode2D.Force); //if (!isWallJumping) 
 
 
         //jump
@@ -317,7 +326,7 @@ public class PlayerMovement : MonoBehaviour
         if (!isDying)
         {
             if (startWind) rb.AddForce(Vector3.down * windedGravity, ForceMode2D.Impulse);
-            else rb.AddForce(Vector3.down * finalgravity, ForceMode2D.Impulse);
+            else rb.AddForce(Vector3.down * finalgravity, ForceMode2D.Force);
            /* if (IsWinded())
             {
                 rb.velocity = new Vector2(rb.velocity.x, Mathf.Clamp(rb.velocity.y, -windGravityLimit, 1000));
@@ -334,7 +343,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         if (startWind) rb.velocity = new Vector2(rb.velocity.x, Mathf.Clamp(rb.velocity.y, -maxWindedVelocity, 100000));
-        else rb.velocity = Vector2.ClampMagnitude(rb.velocity, terminalvelocity); 
+        else rb.velocity = new Vector2(rb.velocity.x, Mathf.Clamp(rb.velocity.y, -terminalvelocity, 100000)); ///rb.velocity = Vector2.ClampMagnitude(rb.velocity, terminalvelocity); 
     }
     public void StartJumpSequence()
     {

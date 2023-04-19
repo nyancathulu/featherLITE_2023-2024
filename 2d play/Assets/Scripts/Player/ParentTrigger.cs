@@ -16,7 +16,10 @@ public class ParentTrigger : MonoBehaviour
     {
         isOnPlatform = false;
     }
-
+    private void Update()
+    {
+        Debug.Log(gameObject.name + " " + isOnPlatform);
+    }
     private void OnTriggerEnter2D(Collider2D collision)
     { 
         isOnPlatform = true;
