@@ -83,6 +83,8 @@ public class PlayerMovement : MonoBehaviour
     public LayerMask ice;
     public LayerMask wind;
     public LayerMask windLevel;
+    public LayerMask notSlime;
+    public LayerMask Slime;
     [Space(10)]
     [Header("Inputs")]
     [Space]
@@ -116,7 +118,7 @@ public class PlayerMovement : MonoBehaviour
     private bool isWallJumping;
     private float wallJumpingDirection;
     private float wallJumpingCounter;
-    private bool sideinput;
+    public bool sideinput;
     bool Conveyerstart;
     float Conveyerdirection;
     bool isDying;
@@ -125,6 +127,9 @@ public class PlayerMovement : MonoBehaviour
     bool runningWindCoroutine;
     bool startedIceCoroutine;
     float internalTopSpeed;
+    public bool isSlimed;
+    bool startedSlimeCoroutine;
+    bool startedSideSlime;
     //chaching
     groundChecker cachedGroundCheck;
 
@@ -157,13 +162,19 @@ public class PlayerMovement : MonoBehaviour
     {
         return Physics2D.OverlapCircle(LAYERChecker.transform.position, 0.2f, wind);
     }
+    private bool SideSlimed()
+    {
+        return Physics2D.OverlapCircle(wallChecker.transform.position, 0.2f, Slime);
+    }
     void OnEnable()
     {
         RespawnManager.OnDeath += Die;
+        SlimeBehavior.OnSlime += SlimeStart;
     }
     void OnDisable()
     {
         RespawnManager.OnDeath -= Die;
+        SlimeBehavior.OnSlime -= SlimeStart;
     }
     void Start()
     {
@@ -281,6 +292,9 @@ public class PlayerMovement : MonoBehaviour
         }
         //Wind
         CheckWind();
+
+        //Slime
+        //SlimeCheck();
     }
     void FixedUpdate()
     {
@@ -294,14 +308,19 @@ public class PlayerMovement : MonoBehaviour
         //jump
         if (!isJumping)
         {
-            if (rb.velocity.y < 0)
+            if (isSlimed) finalgravity = gravity;
+            else
             {
-                finalgravity = gravity * gravitydownscale;
+                if (rb.velocity.y < 0)
+                {
+                    finalgravity = gravity * gravitydownscale;
+                }
+                if (rb.velocity.y >= 0)
+                {
+                    finalgravity = gravity;
+                }
             }
-            if (rb.velocity.y >= 0)
-            {
-                finalgravity = gravity;
-            }
+            
         }
  /*       if (isJumping)
         {
@@ -356,6 +375,7 @@ public class PlayerMovement : MonoBehaviour
         {
             if ((MayJump >= 0f))
             {
+                //Debug.Log("jump");
                 Jump();
                 JumpFlag = true;
                 break;
@@ -378,7 +398,7 @@ public class PlayerMovement : MonoBehaviour
                 {
                     finalgravity = gravity;
                 }
-                if (((rb.velocity.y <= 0.001f) && (isOnGround())) | isWallSliding) // or wallsiding?
+                if (((rb.velocity.y <= 0.001f) && (isOnGround())) | isWallSliding | isSlimed) // or wallsiding?
                 {
                     //logger.Log("ahhh");
                     isJumping = false;
@@ -393,7 +413,7 @@ public class PlayerMovement : MonoBehaviour
                 finalgravity = gravity * cutoffgravitydownscale;
             }
 
-            if (((rb.velocity.y <= 0.001f) && (isOnGround())) | isWallSliding)
+            if (((rb.velocity.y <= 0.001f) && (isOnGround())) | isWallSliding | isSlimed)
             {
                 
                 isJumping = false;
@@ -625,8 +645,42 @@ public class PlayerMovement : MonoBehaviour
             yield return 0;
         }
         startIce = false;
+        yield break;
     }
-
+    void SlimeCheck()
+    {
+        if (SideSlimed())
+        {
+            startedSideSlime = true;
+            sideinput = false;
+        }
+        if (startedSideSlime)
+        {
+            if (isOnGround() | IsWalled())
+            {
+                startedSideSlime = false;
+            }
+        }
+    }
+    void SlimeStart()
+    {
+        if (!startedSlimeCoroutine) StartCoroutine(slimeCoroutine());
+    }
+    public IEnumerator slimeCoroutine()
+    {
+        isSlimed = true;
+        startedIceCoroutine = true;
+        while (isSlimed)
+        {
+            if (Physics2D.OverlapCircle(LAYERChecker.transform.position, 0.2f, notSlime))
+            {
+                isSlimed = false;
+            }
+            yield return new WaitForFixedUpdate();
+        }
+        startedSlimeCoroutine = false;
+        yield break;
+    }
 
 
 
