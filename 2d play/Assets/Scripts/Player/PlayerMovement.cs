@@ -83,6 +83,7 @@ public class PlayerMovement : MonoBehaviour
     public LayerMask ice;
     public LayerMask wind;
     public LayerMask windLevel;
+    public GameObject sideSlimeChecker;
     public LayerMask notSlime;
     public LayerMask Slime;
     [Space(10)]
@@ -164,7 +165,7 @@ public class PlayerMovement : MonoBehaviour
     }
     private bool SideSlimed()
     {
-        return Physics2D.OverlapCircle(wallChecker.transform.position, 0.2f, Slime);
+        return Physics2D.OverlapCircle(sideSlimeChecker.transform.position, 0.05f, Slime);
     }
     void OnEnable()
     {
@@ -294,7 +295,8 @@ public class PlayerMovement : MonoBehaviour
         CheckWind();
 
         //Slime
-        //SlimeCheck();
+       // SlimeCheck();
+        //Debug.Log(sideinput);
     }
     void FixedUpdate()
     {
@@ -656,32 +658,51 @@ public class PlayerMovement : MonoBehaviour
         }
         if (startedSideSlime)
         {
+            movementinput = new Vector2(0, movement.action.ReadValue<Vector2>().y);
             if (isOnGround() | IsWalled())
             {
                 startedSideSlime = false;
             }
         }
     }
-    void SlimeStart()
+    void SlimeStart(bool isSide, Vector2 velocity)
     {
-        if (!startedSlimeCoroutine) StartCoroutine(slimeCoroutine());
+        if (!startedSlimeCoroutine) StartCoroutine(slimeCoroutine(isSide, velocity));
+       
     }
-    public IEnumerator slimeCoroutine()
+    public IEnumerator slimeCoroutine(bool isSide, Vector2 velocity)
     {
         isSlimed = true;
         startedIceCoroutine = true;
+        if (isSide)
+        {
+            sideinput = false;
+            //movementinput = new Vector2(Mathf.Sign(velocity.x), movementinput.y);
+            rb.velocity = new Vector2(0, rb.velocity.y);
+            rb.AddForce(velocity, ForceMode2D.Impulse);
+        }
         while (isSlimed)
         {
+            if (isSide)
+            {
+                if (velocity.x < 0) movementinput = new Vector2(Mathf.Clamp(movement.action.ReadValue<Vector2>().x, -1, -0.5f), movement.action.ReadValue<Vector2>().y);
+                if (velocity.x > 0) movementinput = new Vector2(Mathf.Clamp(movement.action.ReadValue<Vector2>().x, 0.5f, 1), movement.action.ReadValue<Vector2>().y);
+            }
             if (Physics2D.OverlapCircle(LAYERChecker.transform.position, 0.2f, notSlime))
             {
                 isSlimed = false;
             }
+            if (isSide && (Physics2D.OverlapCircle(LAYERChecker.transform.position, 0.2f, Slime)))
+            {
+                sideinput = true;
+                isSide = false;
+            }
             yield return new WaitForFixedUpdate();
         }
+        if (isSide) sideinput = true;
         startedSlimeCoroutine = false;
         yield break;
     }
-
 
 
     void CheckWind()
