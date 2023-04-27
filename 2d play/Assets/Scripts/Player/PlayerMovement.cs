@@ -677,6 +677,7 @@ public class PlayerMovement : MonoBehaviour
         if (isSide)
         {
             sideinput = false;
+            Debug.Log("memem");
             //movementinput = new Vector2(Mathf.Sign(velocity.x), movementinput.y);
             rb.velocity = new Vector2(0, rb.velocity.y);
             rb.AddForce(velocity, ForceMode2D.Impulse);
@@ -685,6 +686,7 @@ public class PlayerMovement : MonoBehaviour
         {
             if (isSide)
             {
+               // Debug.Log("askajsklshalaj");
                 if (velocity.x < 0) movementinput = new Vector2(Mathf.Clamp(movement.action.ReadValue<Vector2>().x, -1, -0.5f), movement.action.ReadValue<Vector2>().y);
                 if (velocity.x > 0) movementinput = new Vector2(Mathf.Clamp(movement.action.ReadValue<Vector2>().x, 0.5f, 1), movement.action.ReadValue<Vector2>().y);
             }
@@ -692,7 +694,7 @@ public class PlayerMovement : MonoBehaviour
             {
                 isSlimed = false;
             }
-            if (isSide && (Physics2D.OverlapCircle(LAYERChecker.transform.position, 0.2f, Slime)))
+            if (isSide && (Physics2D.OverlapCircle(LAYERChecker.transform.position, 0.1f, Slime)))
             {
                 sideinput = true;
                 isSide = false;
