@@ -1,5 +1,5 @@
 {
-    "name": "Player1",
+    "name": "PlayerControls",
     "maps": [
         {
             "name": "AllPlayer",
@@ -280,7 +280,7 @@
                 {
                     "name": "left",
                     "id": "66bdd93b-9528-4fb3-b8bb-3cd94668cdbf",
-                    "path": "<Keyboard>/j",
+                    "path": "<Keyboard>/leftArrow",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
@@ -291,7 +291,7 @@
                 {
                     "name": "right",
                     "id": "0c21e317-7d5b-43e0-a1ef-a7af33c33f2b",
-                    "path": "<Keyboard>/l",
+                    "path": "<Keyboard>/rightArrow",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
@@ -412,7 +412,7 @@
                 {
                     "name": "",
                     "id": "d37e87f2-a50e-4eb8-abc1-2dea436d2e07",
-                    "path": "<Keyboard>/i",
+                    "path": "<Keyboard>/upArrow",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
