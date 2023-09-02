@@ -41,8 +41,12 @@ public class SlimeBehavior : MonoBehaviour
     {
        
 
-        if (!player.GetComponent<PlayerMovement>().isSlimed | (-collision.GetContact(0).normal * playervelocity).magnitude < bounceThreshold) jumpcount = targetforce/2;
-        if (player.GetComponent<PlayerMovement>().isSlimed | (-collision.GetContact(0).normal * playervelocity).magnitude > bounceThreshold)
+        if (!player.GetComponent<PlayerMovement>().isSlimed | (collision.GetContact(0).normal * playervelocity).magnitude < bounceThreshold)
+        {
+            if (jump.action.IsInProgress()) jumpcount = 0;
+            else jumpcount = targetforce / 2;
+        }
+        if (player.GetComponent<PlayerMovement>().isSlimed | (collision.GetContact(0).normal * playervelocity).magnitude > bounceThreshold)
         {
             if (mayslime > 0)
             {
@@ -56,25 +60,29 @@ public class SlimeBehavior : MonoBehaviour
             }
                 
         }
-        if ((-collision.GetContact(0).normal * playervelocity).magnitude > bounceThreshold)
+        if ((collision.GetContact(0).normal * playervelocity).magnitude > bounceThreshold)
         {
             //if (collision.GetContact(0).normal == Vector2.up) Debug.Log("up");
             //Debug.Log(collision.GetContact(0).normal.y > 0);
-            if (Mathf.Abs(-collision.GetContact(0).normal.y) >= Mathf.Abs(-collision.GetContact(0).normal.x)) 
+            if (Mathf.Abs(collision.GetContact(0).normal.y) >= Mathf.Abs(collision.GetContact(0).normal.x)) 
             {
-                
+                //Debug.Log("jump");
                 player.GetComponent<Rigidbody2D>().velocity = new Vector2(player.GetComponent<Rigidbody2D>().velocity.x, 0);
-                player.GetComponent<Rigidbody2D>().AddForce(-collision.GetContact(0).normal * (targetforce - jumpcount), ForceMode2D.Impulse);
+                player.GetComponent<Rigidbody2D>().AddForce(collision.GetContact(0).normal * (targetforce - jumpcount), ForceMode2D.Impulse);
                 if (OnSlime != null) OnSlime(false, Vector2.zero);
             }
 
-            if (Mathf.Abs(-collision.GetContact(0).normal.y) < Mathf.Abs(-collision.GetContact(0).normal.x)) 
+
+
+            //sideSlime (scrapped for now)
+
+          /*  if (Mathf.Abs(collision.GetContact(0).normal.y) < Mathf.Abs(collision.GetContact(0).normal.x)) 
             {
                 //player.GetComponent<Rigidbody2D>().velocity = new Vector2(0, player.GetComponent<Rigidbody2D>().velocity.y);
                 //player.GetComponent<Rigidbody2D>().velocity = new Vector2(sideForceVector.x * collision.GetContact(0).normal.x, sideForceVector.y);
-                Vector2 sideVelocity = Vector2.Reflect(playervelocity, -collision.GetContact(0).normal); //new Vector2(sideForceVector.x * -collision.GetContact(0).normal.x, sideForceVector.y);
+                Vector2 sideVelocity = Vector2.Reflect(playervelocity, collision.GetContact(0).normal); //new Vector2(sideForceVector.x * -collision.GetContact(0).normal.x, sideForceVector.y);
                 if (OnSlime != null) OnSlime(true, sideVelocity);
-            }
+            }*/
             
             
         }

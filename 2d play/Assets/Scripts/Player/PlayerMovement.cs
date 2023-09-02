@@ -375,7 +375,7 @@ public class PlayerMovement : MonoBehaviour
     {
         for (int i = 0; i < jumpwaitframes; i++)
         {
-            if ((MayJump >= 0f))
+            if ((MayJump >= 0f) && !isSlimed)
             {
                 //Debug.Log("jump");
                 Jump();
@@ -677,7 +677,7 @@ public class PlayerMovement : MonoBehaviour
         if (isSide)
         {
             sideinput = false;
-            Debug.Log("memem");
+            //Debug.Log("memem");
             //movementinput = new Vector2(Mathf.Sign(velocity.x), movementinput.y);
             rb.velocity = new Vector2(0, rb.velocity.y);
             rb.AddForce(velocity, ForceMode2D.Impulse);
