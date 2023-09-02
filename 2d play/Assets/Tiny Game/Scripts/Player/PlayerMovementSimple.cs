@@ -94,7 +94,7 @@ public class PlayerMovementSimple : MonoBehaviour
     private float wallJumpingCounter;
     public bool sideinput;
     bool isDying;
-    float internalTopSpeed;
+
 
     //chaching
     groundChecker cachedGroundCheck;
@@ -192,9 +192,31 @@ public class PlayerMovementSimple : MonoBehaviour
     {
 
         //movement
-        targetvelocity = (movementinput.x * internalTopSpeed) - (rb.velocity.x);
+
+        if (!isOnGround())
+        {
+            finalaccelrate = AirBrakeaccelRate;
+        }
+        if (isOnGround())
+        {
+            //wallJumpTimer = -1f;
+            if (movementinput.x != 0)
+            {
+                finalaccelrate = accelRate;
+            }
+            if (movementinput.x == 0)
+            {
+                finalaccelrate = decelRate;
+            }
+        }
+
+        targetvelocity = (movementinput.x * topSpeed) - (rb.velocity.x);
 
         if (!isDying) rb.AddForce(finalaccelrate * targetvelocity * Vector2.right, ForceMode2D.Force);
+
+
+
+
 
 
         //jump
@@ -225,6 +247,14 @@ public class PlayerMovementSimple : MonoBehaviour
        
         rb.velocity = new Vector2(rb.velocity.x, Mathf.Clamp(rb.velocity.y, -terminalvelocity, 100000));
     }
+
+
+
+    
+
+
+
+
     public void StartJumpSequence()
     {
         StartCoroutine(RememberJump());
