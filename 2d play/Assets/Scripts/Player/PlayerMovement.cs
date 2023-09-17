@@ -5,6 +5,8 @@ using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
 public class PlayerMovement : MonoBehaviour
 {
+    [Header("0 = Red, 1 = Blue")]
+    public int Player_Number;
     public DebugLogger logger;
     [Space]
     public Rigidbody2D rb;
@@ -167,15 +169,30 @@ public class PlayerMovement : MonoBehaviour
     {
         return Physics2D.OverlapCircle(sideSlimeChecker.transform.position, 0.05f, Slime);
     }
+
+    private float facingDirection()
+    {
+        if (transform.rotation == Quaternion.identity)
+        {
+            return 1;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
     void OnEnable()
     {
         RespawnManager.OnDeath += Die;
         SlimeBehavior.OnSlime += SlimeStart;
+        Game_Ender_Script.OnTinyDeath += TinyDie;
     }
     void OnDisable()
     {
         RespawnManager.OnDeath -= Die;
         SlimeBehavior.OnSlime -= SlimeStart;
+        Game_Ender_Script.OnTinyDeath -= TinyDie;
     }
     void Start()
     {
@@ -185,6 +202,7 @@ public class PlayerMovement : MonoBehaviour
     }
     void Update()
     {
+        Debug.Log(isSlimed);
         //checks
         //isOnGround = groundChecker.GetComponent<groundChecker>().isOnGround;
         
@@ -242,7 +260,6 @@ public class PlayerMovement : MonoBehaviour
         {
             if (jump.action.triggered)
             {
-                //logger.Log("ahhhhh");
                 StartJumpSequence();
                 // WallJump();
             }
@@ -443,9 +460,10 @@ public class PlayerMovement : MonoBehaviour
             if (isFacingRight && movementinput.x < 0f || !isFacingRight && movementinput.x > 0f)
             {
                 isFacingRight = !isFacingRight;
-                Vector3 localScale = transform.localScale;
-                localScale.x *= -1f;
-                transform.localScale = localScale;
+                /* Vector3 localScale = transform.localScale;
+                 localScale.x *= -1f;
+                 transform.localScale = localScale;*/
+                transform.Rotate(0f, 180f, 0f);
             }
         }
         if (Conveyerstart)
@@ -453,9 +471,10 @@ public class PlayerMovement : MonoBehaviour
             if (isFacingRight && movement.action.ReadValue<Vector2>().x < 0f || !isFacingRight && movement.action.ReadValue<Vector2>().x > 0f)
             {
                 isFacingRight = !isFacingRight;
-                Vector3 localScale = transform.localScale;
-                localScale.x *= -1f;
-                transform.localScale = localScale;
+                /* Vector3 localScale = transform.localScale;
+                 localScale.x *= -1f;
+                 transform.localScale = localScale;*/
+                transform.Rotate(0f, 180f, 0f);
             }
         }
     }
@@ -485,7 +504,7 @@ public class PlayerMovement : MonoBehaviour
         {
             sideinput = true;
             isWallJumping = false;
-            wallJumpingDirection = -transform.localScale.x;
+            wallJumpingDirection = -facingDirection();
             wallJumpingCounter = wallJumpingTime;
 
             CancelInvoke(nameof(StopWallJumping));
@@ -506,9 +525,10 @@ public class PlayerMovement : MonoBehaviour
             if (transform.localScale.x != wallJumpingDirection)
             {
                 isFacingRight = !isFacingRight;
-                Vector3 localScale = transform.localScale;
-                localScale.x *= -1f;
-                transform.localScale = localScale;
+                /*      Vector3 localScale = transform.localScale;
+                      localScale.x *= -1f;
+                      transform.localScale = localScale;*/
+                transform.Rotate(0f, 180f, 0f);
             }
 
             Invoke(nameof(StopWallJumping), wallJumpingDuration);
@@ -665,7 +685,7 @@ public class PlayerMovement : MonoBehaviour
             }
         }
     }
-    void SlimeStart(bool isSide, Vector2 velocity)
+    public void SlimeStart(bool isSide, Vector2 velocity)
     {
         if (!startedSlimeCoroutine) StartCoroutine(slimeCoroutine(isSide, velocity));
        
@@ -673,7 +693,7 @@ public class PlayerMovement : MonoBehaviour
     public IEnumerator slimeCoroutine(bool isSide, Vector2 velocity)
     {
         isSlimed = true;
-        startedIceCoroutine = true;
+        startedSlimeCoroutine = true;
         if (isSide)
         {
             sideinput = false;
@@ -795,6 +815,19 @@ public class PlayerMovement : MonoBehaviour
         yield break;
     }
 
+
+    void TinyDie(int loser, GameObject killingBullet)
+    {
+        if (Player_Number == loser)
+        {
+            isDying = true;
+            transform.parent = null;
+            rb.velocity = Vector2.zero;
+            GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeAll;
+            GetComponent<Collider2D>().enabled = false;
+        }
+
+    }
     /*  void WallSlide()
       {
           if (IsWalled() && !isOnGround() && (movementinput.x != 0))

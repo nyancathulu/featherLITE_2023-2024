@@ -81,7 +81,7 @@ public class NoiseBuilder_Script : MonoBehaviour
         float xCoord = (float)x / textureWidth * noiseScale + offsetX;
         float yCoord = (float)y / textureHeight * noiseScale + offsetY;
 
-        float sample = noise.snoise(new float2(xCoord, yCoord));
+        float sample = Mathf.PerlinNoise(xCoord, yCoord);
         
         return new Color(sample, sample, sample);
     }

@@ -3,7 +3,9 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Red Player
+  - Blue Player
   layers:
   - Default
   - TransparentFX
@@ -26,10 +28,10 @@ TagManager:
   - groundCheck
   - Slime
   - slimeCheck
-  - 
-  - 
-  - 
-  - 
+  - Red_DeathColllider
+  - Blue_DeathCollider
+  - Red_Bullet
+  - Blue_Bullet
   - 
   - 
   - 

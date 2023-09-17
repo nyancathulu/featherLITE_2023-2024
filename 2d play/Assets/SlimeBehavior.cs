@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 public class SlimeBehavior : MonoBehaviour
 {
     public GameObject player;
+    public PlayerMovement player_movementComponent;
     public Vector2 playervelocity;
     public Vector2 sideForceVector;
     public InputActionReference jump;
@@ -19,9 +20,14 @@ public class SlimeBehavior : MonoBehaviour
     public static event SlimeEvent OnSlime;
     [Range(0,10)]
     public float bounceThreshold;
-    int jumpcount;
+    public int jumpcount;
     public int upfactor;
     public int downfactor;
+    float jumpMargin;
+    private void Start()
+    {
+        jumpMargin = targetforce - 0.1f;
+    }
     private void FixedUpdate()
     {
         playervelocity = player.GetComponent<Rigidbody2D>().velocity;
@@ -34,14 +40,14 @@ public class SlimeBehavior : MonoBehaviour
         }
         else
         {
-            if (mayslime > 0) mayslime -= Time.deltaTime;
+            if (mayslime >= 0) mayslime -= Time.deltaTime;
         }
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
        
 
-        if (!player.GetComponent<PlayerMovement>().isSlimed | (collision.GetContact(0).normal * playervelocity).magnitude < bounceThreshold)
+        if (!player.GetComponent<PlayerMovement>().isSlimed && (collision.GetContact(0).normal * playervelocity).magnitude < bounceThreshold)
         {
             if (jump.action.IsInProgress()) jumpcount = 0;
             else jumpcount = targetforce / 2;
@@ -69,7 +75,8 @@ public class SlimeBehavior : MonoBehaviour
                 //Debug.Log("jump");
                 player.GetComponent<Rigidbody2D>().velocity = new Vector2(player.GetComponent<Rigidbody2D>().velocity.x, 0);
                 player.GetComponent<Rigidbody2D>().AddForce(collision.GetContact(0).normal * (targetforce - jumpcount), ForceMode2D.Impulse);
-                if (OnSlime != null) OnSlime(false, Vector2.zero);
+                ///if (OnSlime != null) OnSlime(false, Vector2.zero);
+                player_movementComponent.SlimeStart(false, Vector2.zero);
             }
 
 
@@ -86,6 +93,7 @@ public class SlimeBehavior : MonoBehaviour
             
             
         }
+        if (jumpcount > jumpMargin) player_movementComponent.isSlimed = false;
       
     }
 }

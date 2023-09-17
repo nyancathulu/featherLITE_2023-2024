@@ -107,6 +107,19 @@ public class PlayerMovementSimple : MonoBehaviour
     {
         return Physics2D.OverlapCircle(wallChecker.transform.position, 0.2f, wall);
     }
+
+    private float facingDirection()
+    {
+        if (transform.rotation == Quaternion.identity)
+        {
+            return 1;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
     void OnEnable()
     {
         RespawnManager.OnDeath += Die;
@@ -123,6 +136,7 @@ public class PlayerMovementSimple : MonoBehaviour
     }
     void Update()
     {
+
         //checks
 
         
@@ -326,9 +340,10 @@ public class PlayerMovementSimple : MonoBehaviour
         if (isFacingRight && movementinput.x < 0f || !isFacingRight && movementinput.x > 0f)
         {
             isFacingRight = !isFacingRight;
-            Vector3 localScale = transform.localScale;
+           /* Vector3 localScale = transform.localScale;
             localScale.x *= -1f;
-            transform.localScale = localScale;
+            transform.localScale = localScale;*/
+            transform.Rotate(0f, 180f, 0f);
         }
     }
 
@@ -356,7 +371,7 @@ public class PlayerMovementSimple : MonoBehaviour
         {
             sideinput = true;
             isWallJumping = false;
-            wallJumpingDirection = -transform.localScale.x;
+            wallJumpingDirection = -facingDirection();
             wallJumpingCounter = wallJumpingTime;
 
             CancelInvoke(nameof(StopWallJumping));
@@ -373,12 +388,13 @@ public class PlayerMovementSimple : MonoBehaviour
             rb.velocity = new Vector2(wallJumpingDirection * wallJumpingPower.x, wallJumpingPower.y);
             wallJumpingCounter = 0f;
 
-            if (transform.localScale.x != wallJumpingDirection)
+            if (facingDirection() != wallJumpingDirection)
             {
                 isFacingRight = !isFacingRight;
-                Vector3 localScale = transform.localScale;
+          /*      Vector3 localScale = transform.localScale;
                 localScale.x *= -1f;
-                transform.localScale = localScale;
+                transform.localScale = localScale;*/
+                transform.Rotate(0f, 180f, 0f);
             }
 
             Invoke(nameof(StopWallJumping), wallJumpingDuration);
