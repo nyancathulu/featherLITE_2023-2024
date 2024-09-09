@@ -15,6 +15,7 @@ public class Blue_Bullet_Pooling : MonoBehaviour
 
     [SerializeField] Game_Ender_Script game_ender;
 
+    [SerializeField] Blue_Particle_Pooling Blue_particlepooler;
 
     private void Awake()
     {
@@ -30,7 +31,8 @@ public class Blue_Bullet_Pooling : MonoBehaviour
         for (int i = 0; i < Blue_amountToPool; i++)
         {
             GameObject obj = Instantiate(Blue_bulletPrefab);
-            obj.GetComponent<Bullet_Script>().GameEnder = game_ender;
+            obj.GetComponent<BLUE_Bullet_Script>().GameEnder = game_ender;
+            obj.GetComponent<BLUE_Bullet_Script>().particle_pooler = Blue_particlepooler;
             obj.SetActive(false);
             pooledBlueBullets.Add(obj);
         }
@@ -47,5 +49,15 @@ public class Blue_Bullet_Pooling : MonoBehaviour
         }
 
         return null;
+    }
+    public void DisableBullets()
+    {
+        for (int j = 0; j < pooledBlueBullets.Count; j++)
+        {
+            if (pooledBlueBullets[j].activeInHierarchy)
+            {
+                pooledBlueBullets[j].SetActive(false);
+            }
+        }
     }
 }

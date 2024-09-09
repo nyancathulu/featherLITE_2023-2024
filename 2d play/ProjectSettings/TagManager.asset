@@ -10,7 +10,7 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Ground
+  - RedGround
   - Water
   - UI
   - Wall
@@ -32,8 +32,8 @@ TagManager:
   - Blue_DeathCollider
   - Red_Bullet
   - Blue_Bullet
-  - 
-  - 
+  - Boundary
+  - BlueGround
   - 
   - 
   - 

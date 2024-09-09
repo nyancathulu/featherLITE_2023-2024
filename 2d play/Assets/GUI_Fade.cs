@@ -12,18 +12,37 @@ public class GUI_Fade : MonoBehaviour
 
     public AnimationCurve fadeCurve;
 
+    public DeathCheck_Disable DeathCheck;
+
+    public AudioSource deathSound;
+
+    public GameObject shooter;
+
+    public bool IsCoroutine;
+
     void OnEnable()
     {
         Game_Ender_Script.OnTinyDeath += FadeAway;
+
+        IsCoroutine = false;
+    }
+
+    private void OnDisable()
+    {
+        Game_Ender_Script.OnTinyDeath -= FadeAway;
     }
 
     public void FadeAway(int loser, GameObject bullet)
     {
+        if (IsCoroutine) return;
         if (Player_Number == loser) StartCoroutine(FadeCoroutine(bullet.GetComponent<SpriteRenderer>()));
     }
 
     public IEnumerator FadeCoroutine(SpriteRenderer _bullet)
     {
+        IsCoroutine = true;
+        shooter.SetActive(false);
+        deathSound.Play();
         float t = 0;
         while (true)
         {
@@ -49,11 +68,13 @@ public class GUI_Fade : MonoBehaviour
 
             if (t == 1)
             {
-                yield break;
+                break;
             }
 
             yield return 0;
         }
+        DeathCheck.DeathColliderDie();
+        yield break;
     }
 
 

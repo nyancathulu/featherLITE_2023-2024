@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
 public class Game_Ender_Script : MonoBehaviour
 {
 
@@ -35,6 +35,21 @@ public class Game_Ender_Script : MonoBehaviour
 
     [SerializeField] RoomBuildingScript MapBuilder;
 
+    [SerializeField] Red_Bullet_Pooling RED_bullet_pooler;
+
+    [SerializeField] Blue_Bullet_Pooling BLUE_bullet_pooler;
+
+    [SerializeField] List<GameObject> TilemapsToDestroy = new List<GameObject>();
+
+    [SerializeField] AudioSource WinSound;
+
+    [SerializeField] private string StartMenu;
+
+    [SerializeField] float waitTime_BeforeLoadingStartMenu;
+
+    [SerializeField] GameObject SlimePads;
+
+    [SerializeField] bool isDemo;
     private void Start()
     {
         GameEnded = false;
@@ -50,6 +65,7 @@ public class Game_Ender_Script : MonoBehaviour
     public IEnumerator MapBuildingCoroutine()
     {
         //send to map builder
+        SlimePads.SetActive(true);
 
         MapBuilder.BuildMaps();
 
@@ -102,23 +118,40 @@ public class Game_Ender_Script : MonoBehaviour
             yield return 0;
         }
 
-        _bullet.SetActive(false);
-
         if (_loser == 0) 
         {
             //Red_Instance.SetActive(false);
             //Debug.LogAssertion("Blue Wins!");
+            BLUE_bullet_pooler.DisableBullets();
             blue_WinScreen.SetActive(true);
         }
 
         if (_loser == 1) 
         {
             //Blue_Instance.SetActive(false);
+            RED_bullet_pooler.DisableBullets();
             red_WinScreen.SetActive(true);
             //Debug.LogAssertion("Red Wins!");
         }
+        WinSound.Play();
+        float timer2 = waitTime_BeforeLoadingStartMenu;
+
+        while (timer2 > 0)
+        {
+            timer2 -= Time.deltaTime;
+            yield return 0;
+        }
+        if (!isDemo) SceneManager.LoadScene(StartMenu);
+        else SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        yield break;
+        //DestroyTilemaps();
+        
     }
 
+    void DestroyTilemaps()
+    {
+        for (int i = 0; i < TilemapsToDestroy.Count; i++) TilemapsToDestroy[i].SetActive(false);
+    }
 
 
 

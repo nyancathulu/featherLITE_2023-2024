@@ -15,6 +15,8 @@ public class Red_Bullet_Pooling : MonoBehaviour
 
     [SerializeField] Game_Ender_Script game_ender;
 
+    [SerializeField] Red_Particle_Pooling Red_particlepooler;
+
     private void Awake()
     {
         if (Red_instance == null)
@@ -30,11 +32,12 @@ public class Red_Bullet_Pooling : MonoBehaviour
         for (int i = 0; i < Red_amountToPool; i++)
         {
             GameObject obj = Instantiate(Red_bulletPrefab);
-            obj.GetComponent<Bullet_Script>().GameEnder = game_ender;
+            obj.GetComponent<RED_Bullet_Script>().GameEnder = game_ender;
+            obj.GetComponent<RED_Bullet_Script>().particle_pooler = Red_particlepooler;
             obj.SetActive(false);
             pooledRedBullets.Add(obj);
         }
-        Debug.Log(Red_instance);
+        
     }
 
     public GameObject GetRedBullet()
@@ -48,5 +51,16 @@ public class Red_Bullet_Pooling : MonoBehaviour
         }
 
         return null;
+    }
+
+    public void DisableBullets()
+    {
+        for (int j = 0; j < pooledRedBullets.Count; j++)
+        {
+            if (pooledRedBullets[j].activeInHierarchy)
+            {
+                pooledRedBullets[j].SetActive(false);
+            }
+        }
     }
 }

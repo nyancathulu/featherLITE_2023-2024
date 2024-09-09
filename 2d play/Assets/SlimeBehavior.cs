@@ -43,9 +43,9 @@ public class SlimeBehavior : MonoBehaviour
             if (mayslime >= 0) mayslime -= Time.deltaTime;
         }
     }
-    private void OnCollisionEnter2D(Collision2D collision)
+    public void CollisionEvent(Collision2D collision)
     {
-       
+        //Debug.Log("blah");
 
         if (!player.GetComponent<PlayerMovement>().isSlimed && (collision.GetContact(0).normal * playervelocity).magnitude < bounceThreshold)
         {

@@ -72,6 +72,8 @@ public class PlayerMovement : MonoBehaviour
     public float iceAirAccelRate;
     public float windedGravity;
     public float maxWindedVelocity;
+    public Vector3 Regular_Scale;
+    public Vector3 Crouch_Scale;
     [Space(5)]
     [Header("References")]
     public GameObject groundChecker;
@@ -88,6 +90,12 @@ public class PlayerMovement : MonoBehaviour
     public GameObject sideSlimeChecker;
     public LayerMask notSlime;
     public LayerMask Slime;
+    public GameObject REGULAR_slimeCollider;
+    public GameObject CROUCHED_slimeCollider;
+    public GameObject REGULAR_Player_Collider;
+    public GameObject CROUCHED_Player_Collider;
+    public float crouchCheckDistance;
+    public LayerMask RaycastLayers;
     [Space(10)]
     [Header("Inputs")]
     [Space]
@@ -99,6 +107,8 @@ public class PlayerMovement : MonoBehaviour
     public InputActionReference movement;
     //[SerializeField]
     public InputActionReference jump;
+
+    public InputActionReference crouch;
 
 
 
@@ -133,8 +143,10 @@ public class PlayerMovement : MonoBehaviour
     public bool isSlimed;
     bool startedSlimeCoroutine;
     bool startedSideSlime;
+    public bool isCrouching;
     //chaching
     groundChecker cachedGroundCheck;
+    public LayerMask GroundNOT_ICE;
 
     private bool isOnGround()
     {
@@ -169,6 +181,10 @@ public class PlayerMovement : MonoBehaviour
     {
         return Physics2D.OverlapCircle(sideSlimeChecker.transform.position, 0.05f, Slime);
     }
+    private bool isNotIced()
+    {
+        return Physics2D.OverlapCircle(LAYERChecker.transform.position, 0.2f,GroundNOT_ICE);
+    }
 
     private float facingDirection()
     {
@@ -199,10 +215,11 @@ public class PlayerMovement : MonoBehaviour
         sideinput = true;
         OGscale = gameObject.transform.localScale.x;
         cachedGroundCheck = groundChecker.GetComponent<groundChecker>();
+        isCrouching = false;
     }
     void Update()
     {
-        Debug.Log(isSlimed);
+        //Debug.Log(IsWalled());
         //checks
         //isOnGround = groundChecker.GetComponent<groundChecker>().isOnGround;
         
@@ -312,8 +329,13 @@ public class PlayerMovement : MonoBehaviour
         CheckWind();
 
         //Slime
-       // SlimeCheck();
+        // SlimeCheck();
         //Debug.Log(sideinput);
+
+
+
+        //crouch
+        Crouch();
     }
     void FixedUpdate()
     {
@@ -758,7 +780,49 @@ public class PlayerMovement : MonoBehaviour
 
     
 
+    void Crouch()
+    {
+        if (!isCrouching)
+        {
+            if (crouch.action.IsInProgress())
+            {
+                REGULAR_Player_Collider.SetActive(false);
 
+                REGULAR_slimeCollider.SetActive(false);
+                
+
+                gameObject.transform.localScale = Crouch_Scale;
+
+                CROUCHED_Player_Collider.SetActive(true);
+
+                CROUCHED_slimeCollider.SetActive(true);
+                
+
+                isCrouching = true;
+            }
+        }
+        if (isCrouching)
+        {
+            if (!crouch.action.IsInProgress())
+            {
+                if (!Physics2D.Raycast(gameObject.transform.position, Vector2.up, crouchCheckDistance, RaycastLayers))
+                {
+                    CROUCHED_Player_Collider.SetActive(false);
+
+                    CROUCHED_slimeCollider.SetActive(false);
+
+                    gameObject.transform.localScale = Regular_Scale;
+
+                    REGULAR_Player_Collider.SetActive(true);
+
+                    REGULAR_slimeCollider.SetActive(true);
+
+                    isCrouching = false;
+                }
+            }
+        }
+      
+    }
 
 
 
@@ -824,7 +888,8 @@ public class PlayerMovement : MonoBehaviour
             transform.parent = null;
             rb.velocity = Vector2.zero;
             GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeAll;
-            GetComponent<Collider2D>().enabled = false;
+           /* REGULAR_Player_Collider.SetActive(false);
+            CROUCHED_Player_Collider.SetActive(false);*/
         }
 
     }
