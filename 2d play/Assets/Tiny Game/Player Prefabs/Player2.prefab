@@ -629,7 +629,7 @@ MonoBehaviour:
   sideSlimeChecker: {fileID: 0}
   notSlime:
     serializedVersion: 2
-    m_Bits: 67111176
+    m_Bits: 100665608
   Slime:
     serializedVersion: 2
     m_Bits: 524288
@@ -849,6 +849,9 @@ MonoBehaviour:
   firingInput: {fileID: -3865880869446295327, guid: ade9831dde715cd4d8767bc878011575, type: 3}
   ShootSound: {fileID: 5874252893944810679}
   player: {fileID: 1477126865514787705}
+  firingPotential: 0
+  reloadSpeed: 10
+  totalFirePotential: 100
   vert_CrouchShootOffset: -0.37
 --- !u!1 &2325476778167858286
 GameObject:

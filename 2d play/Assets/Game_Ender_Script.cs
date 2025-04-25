@@ -50,6 +50,11 @@ public class Game_Ender_Script : MonoBehaviour
     [SerializeField] GameObject SlimePads;
 
     [SerializeField] bool isDemo;
+
+    [HideInInspector] public Red_Shooting redShooter;
+    [HideInInspector] public Blue_Shooting blueShooter;
+
+    public Reload_Bars ReloadBars_UI;
     private void Start()
     {
         GameEnded = false;
@@ -85,7 +90,10 @@ public class Game_Ender_Script : MonoBehaviour
         Red_Instance = Instantiate(Red_Player, RedSpawn.position, Quaternion.identity);
         Blue_Instance = Instantiate(Blue_Player, BlueSpawn.position, Quaternion.identity);
 
+        redShooter = Red_Instance.GetComponentInChildren<Red_Shooting>();
+        blueShooter = Blue_Instance.GetComponentInChildren<Blue_Shooting>();
 
+        ReloadBars_UI.gameObject.SetActive(true);
     }
 
 
@@ -105,6 +113,7 @@ public class Game_Ender_Script : MonoBehaviour
             GameEnded = true;
             if (OnTinyDeath != null) OnTinyDeath(loser, killingBullet);
             StartCoroutine(EndingCourutine(loser, killingBullet));
+            ReloadBars_UI.gameObject.SetActive(false);
         }
     }
 
